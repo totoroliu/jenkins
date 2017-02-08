@@ -1714,8 +1714,10 @@ public class Jenkins extends AbstractCIBase implements DirectlyModifiableTopLeve
             return new ArrayList(items.values());
         }
 
+        LOGGER.info("FTNT: jenkins.model.Jenkins.getItems(): start");
         List<TopLevelItem> viewableItems = new ArrayList<TopLevelItem>();
         for (TopLevelItem item : items.values()) {
+            LOGGER.info("FTNT: jenkins.model.Jenkins.getItems(): item(" + item.getFullName() + ").hasPermission(Item.READ)");
             if (item.hasPermission(Item.READ))
                 viewableItems.add(item);
         }
@@ -2725,6 +2727,7 @@ public class Jenkins extends AbstractCIBase implements DirectlyModifiableTopLeve
         TopLevelItem item = items.get(name);
         if (item==null)
             return null;
+        LOGGER.info("FTNT: jenkins.model.Jenkins.getItem(): item(" + item.getFullName() + ").hasPermission(Item.READ)");
         if (!item.hasPermission(Item.READ)) {
             if (item.hasPermission(Item.DISCOVER)) {
                 throw new AccessDeniedException("Please login to access job " + name);
@@ -2755,6 +2758,7 @@ public class Jenkins extends AbstractCIBase implements DirectlyModifiableTopLeve
         if (pathName.startsWith("/"))   // absolute
             return getItemByFullName(pathName);
 
+        LOGGER.info("FTNT: jenkins.model.Jenkins.getItem(pathName=" + pathName + ", ItemGroup=" + context.getFullName() +"): start");
         Object/*Item|ItemGroup*/ ctx = context;
 
         StringTokenizer tokens = new StringTokenizer(pathName,"/");
@@ -2776,6 +2780,7 @@ public class Jenkins extends AbstractCIBase implements DirectlyModifiableTopLeve
             if (ctx instanceof ItemGroup) {
                 ItemGroup g = (ItemGroup) ctx;
                 Item i = g.getItem(s);
+                LOGGER.info("FTNT: jenkins.model.Jenkins.getItem(pathName=" + pathName + ", ItemGroup=" + context.getFullName() +"):\ni(" + i.getFullName() +").hasPermission(Item.READ)");
                 if (i==null || !i.hasPermission(Item.READ)) { // TODO consider DISCOVER
                     ctx=null;    // can't go up further
                     break;
@@ -2831,6 +2836,7 @@ public class Jenkins extends AbstractCIBase implements DirectlyModifiableTopLeve
         ItemGroup parent = this;
 
         if(!tokens.hasMoreTokens()) return null;    // for example, empty full name.
+        LOGGER.info("FTNT: jenkins.model.Jenkins.getItemByFullName(fullname="+ fullName +"type="+ type.toString() +"): start");
 
         while(true) {
             Item item = parent.getItem(tokens.nextToken());
@@ -2844,6 +2850,7 @@ public class Jenkins extends AbstractCIBase implements DirectlyModifiableTopLeve
             if(!(item instanceof ItemGroup))
                 return null;    // this item can't have any children
 
+            LOGGER.info("FTNT: jenkins.model.Jenkins.getItemByFullName(fullname="+ fullName +"type="+ type.toString() +"): item("+item.getFullName()+ ").hasPermission(Item.READ)");
             if (!item.hasPermission(Item.READ))
                 return null; // TODO consider DISCOVER
 
@@ -4547,6 +4554,7 @@ public class Jenkins extends AbstractCIBase implements DirectlyModifiableTopLeve
     public Object getTarget() {
         try {
             checkPermission(READ);
+            LOGGER.info("FTNT: Stapler.getCurrentRequest().getRestOfPath()=" + Stapler.getCurrentRequest().getRestOfPath());
         } catch (AccessDeniedException e) {
             String rest = Stapler.getCurrentRequest().getRestOfPath();
             for (String name : ALWAYS_READABLE_PATHS) {

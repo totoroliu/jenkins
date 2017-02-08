@@ -592,10 +592,12 @@ public abstract class View extends AbstractModelObject implements AccessControll
     }
 
     public void checkPermission(Permission p) {
+        LOGGER.info("FTNT: hudson.model.View.checkPermission(permission="+p.toString()+")");
         getACL().checkPermission(p);
     }
 
     public boolean hasPermission(Permission p) {
+        LOGGER.info("FTNT: hudson.model.View.hasPermission(permission="+p.toString()+")");
         return getACL().hasPermission(p);
     }
 
